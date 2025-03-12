@@ -297,9 +297,6 @@ void GameManager::renderPasswordReveal() const {
       PASSWORD_MENU_POSITION_Y);
     arduboy.write(pwd[i]);
   }
-
-  arduboy.setCursor(5, 55);
-  arduboy.print(F("Press A to continue"));
 }
 
 /*
@@ -318,9 +315,6 @@ void GameManager::renderGameFinish() const {
   arduboy.print(F("Congratulations !"));
   arduboy.setCursor(10, 35);
   arduboy.print("Final Score :" + String(currentScore));
-
-  arduboy.setCursor(5, 55);
-  arduboy.print(F("Press A to continue"));
 }
 
 
@@ -338,9 +332,6 @@ void GameManager::updateGameOver() {
 void GameManager::renderGameOver() const {
   arduboy.setCursor(35, 25);
   arduboy.print(F("Game Over"));
-
-  arduboy.setCursor(5, 55);
-  arduboy.print(F("Press A to continue"));
 }
 
 /*
@@ -352,38 +343,33 @@ void GameManager::updateTwoPlayerWaitingScreen() {
   if (arduboy.justPressed(B_BUTTON)) {
     setMenu();
     beepTone(MENU_SOUND_FREQ, MENU_SOUND_DUR);
-  } else {
+  }
 
-    if (networkManager->getDeviceType() == DeviceType::NotDefined) {
+  // Initializing Handshake Process
+  if (networkManager->getDeviceType() == DeviceType::NotDefined) {
 #ifdef DEBUG_MODE
-      Serial.println(F("Device Type not defined... Let's try to handshake"));
+    Serial.println(F("Device Type not defined... Let's try to handshake"));
 #endif
-      player->attachNetworkManager(networkManager);
+    player->attachNetworkManager(networkManager);
 #ifdef DEBUG_MODE
-      Serial.println(F("Starting Handshake..."));
+    Serial.println(F("Starting Handshake..."));
 #endif
-      networkManager->initHandshake();
-    }
+    networkManager->initHandshake();
+  }
 
-    if (networkManager->getHandshakeState() == HandshakeState::Started) {
-      networkManager->initNetworkTransmission();
-      if (networkManager->getDeviceType() == DeviceType::Controller) {
-        setState(GameState::Playing);
-        setNextLevel();
-        getPlayer()->setIsPlayerTurn(true);
-      } else {
-        //Serial.println(F("Hanshake finished, you are the Peripherical"));
-        // Peripheral device will later receive a message in order to
-        // - Get the randomSeed to create the new level
-        // - Go to the next level
-      }
+  // Waiting for the beginning of the handshake (Started means, an I2C connection has just been established)
+  if (networkManager->getHandshakeState() == HandshakeState::Started) {
+    networkManager->initNetworkTransmission();
+    if (networkManager->getDeviceType() == DeviceType::Controller) {
+      setState(GameState::Playing);
+      setNextLevel();
+      getPlayer()->setIsPlayerTurn(true);
     }
   }
 }
 
+
 void GameManager::renderTwoPlayerWaitingScreen() const {
   arduboy.setCursor(15, 25);
   arduboy.print(F("Waiting Player..."));
-  arduboy.setCursor(5, 55);
-  arduboy.print(F("Press B to Quit"));
 }

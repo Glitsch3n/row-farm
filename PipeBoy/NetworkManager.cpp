@@ -142,8 +142,9 @@ void NetworkManager::initNetworkTransmission() {
     Wire.endTransmission();
     goToNextLevel();
   }
-#ifdef DEBUG_MODE
   handshakeState = HandshakeState::Completed;
+
+#ifdef DEBUG_MODE
   Serial.println(F("Handshake Completed !"));
 #endif
 }
