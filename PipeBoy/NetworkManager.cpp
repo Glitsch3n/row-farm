@@ -69,10 +69,10 @@ void NetworkManager::pushDataToController(int numBytes) {
 void NetworkManager::pullData() {
   // Always read 2 byte per 2 byte
   while (Wire.available()) {
-    MessageType msg = (MessageType)Wire.read();
+    MessageType msg = static_cast<MessageType>(Wire.read());
 #ifdef DEBUG_MODE
     Serial.print(F("Pulling Data... MessageType="));
-    Serial.println((uint8_t)msg);
+    Serial.println(static_cast<uint8_t>(msg));
 #endif
 
     if (msg == MessageType::goToNextLevel) {
@@ -155,7 +155,7 @@ DeviceType NetworkManager::getDeviceType() const {
 // --- Methods to send specific actions ---
 
 void NetworkManager::sendSetPlayerPosition(uint8_t x, uint8_t y) {
-  Wire.write((uint8_t)MessageType::setPlayerPosition);
+  Wire.write(static_cast<uint8_t>(MessageType::setPlayerPosition));
   Wire.write(packPosition(x, y));
 }
 
@@ -173,7 +173,7 @@ void NetworkManager::setPlayerPosition(uint8_t x, uint8_t y) {
 }
 
 void NetworkManager::sendSetPipe() {
-  Wire.write((uint8_t)MessageType::setPipe);
+  Wire.write(static_cast<uint8_t>(MessageType::setPipe));
   Wire.write(true);
 }
 
@@ -191,7 +191,7 @@ void NetworkManager::setPipe() {
 }
 
 void NetworkManager::sendGoToNextLevel() {
-  Wire.write((uint8_t)MessageType::goToNextLevel);
+  Wire.write(static_cast<uint8_t>(MessageType::goToNextLevel));
   Wire.write(true);
 }
 
@@ -208,7 +208,7 @@ void NetworkManager::goToNextLevel() {
 }
 
 void NetworkManager::sendSetPause(bool pause) {
-  Wire.write((uint8_t)MessageType::setPause);
+  Wire.write(static_cast<uint8_t>(MessageType::setPause));
   Wire.write(pause);
 }
 
@@ -226,7 +226,7 @@ void NetworkManager::setPause(bool pause) {
 }
 
 void NetworkManager::sendSetFillPipeFast() {
-  Wire.write((uint8_t)MessageType::setFillPipeFast);
+  Wire.write(static_cast<uint8_t>(MessageType::setFillPipeFast));
   Wire.write(true);
 }
 

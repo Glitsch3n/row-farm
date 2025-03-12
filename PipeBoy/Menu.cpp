@@ -35,7 +35,7 @@ void Menu::update(GameManager *gm) {
 
   if (menuType == MenuType::MenuSelection) {
     if (arduboy.justPressed(A_BUTTON)) {
-      const MenuSelection mSelect = (MenuSelection)selectedOption;
+      const MenuSelection mSelect = static_cast<MenuSelection>(selectedOption);
 
       if (mSelect == MenuSelection::Play) {
         menuType = MenuType::MenuSelectionPlay;
@@ -49,7 +49,7 @@ void Menu::update(GameManager *gm) {
     }
   } else if (menuType == MenuType::MenuSelectionPlay) {
     if (arduboy.justPressed(A_BUTTON)) {
-      const MenuSelectionPlay mSelect = (MenuSelectionPlay)selectedOption;
+      const MenuSelectionPlay mSelect = static_cast<MenuSelectionPlay>(selectedOption);
 
       if (mSelect == MenuSelectionPlay::OnePlayer) {
         gm->setNextLevel();
@@ -96,7 +96,7 @@ void Menu::update(GameManager *gm) {
 void Menu::render(GameManager *gm) const {
   arduboy.drawBitmap(0, 0, titlescreen, 128, 30);
 
-  const uint8_t menuTypePos = (uint8_t)menuType;
+  const uint8_t menuTypePos = static_cast<uint8_t>(menuType);
   for (int i = 0; i < getNbMaxOptions(); i++) {
 
     if (i == selectedOption) {
