@@ -5,7 +5,7 @@
 #include "NetworkManager.h"
 
 NetworkManager *NetworkManager::instance = nullptr;
-volatile bool handshakeCompleted = false;
+volatile HandshakeState handshakeState = HandshakeState::NotReady;
 
 NetworkManager::NetworkManager(GameManager *gmRef)
   : gm(gmRef) {
@@ -15,7 +15,7 @@ NetworkManager::NetworkManager(GameManager *gmRef)
 
 void NetworkManager::reset() {
   deviceType = DeviceType::NotDefined;
-  handshakeCompleted = false;
+  handshakeState = HandshakeState::NotReady;
   Wire.end();
 }
 
@@ -28,6 +28,10 @@ void NetworkManager::update() {
 
 bool NetworkManager::isAvailable() {
   return deviceType != DeviceType::NotDefined;
+}
+
+HandshakeState NetworkManager::getHandshakeState() const {
+  return handshakeState;
 }
 
 // Un-queue one event and push it to the Controller
@@ -74,7 +78,6 @@ void NetworkManager::pullData() {
     if (msg == MessageType::goToNextLevel) {
       gm->setState(GameState::Playing);
       gm->setNextLevel();
-      gm->getPlayer()->setIsPlayerTurn(false);
       Wire.read();  // read useless boolean
     } else if (msg == MessageType::setPlayerPosition) {
       uint8_t data = Wire.read();
@@ -104,20 +107,19 @@ void NetworkManager::pullData() {
   }
 }
 
-DeviceType NetworkManager::handshake() {
-
+DeviceType NetworkManager::initHandshake() {
   power_twi_enable();
-
   Wire.begin();
   Wire.requestFrom(TARGET_ADDRESS, 1);
 
   if (Wire.available()) {
     deviceType = DeviceType::Controller;
-    handshakeCompleted = Wire.read();
+    if (Wire.read()) {
+      handshakeState = HandshakeState::Started;
+    }
 #ifdef DEBUG_MODE
     Serial.println(F("Set DeviceType to Controller"));
 #endif
-
   } else {
     deviceType = DeviceType::Peripheral;
     Wire.begin(TARGET_ADDRESS);
@@ -127,28 +129,23 @@ DeviceType NetworkManager::handshake() {
     Serial.println(F("Set DeviceType to Peripherical"));
 #endif
   }
+  return deviceType;
+}
 
-  while (!handshakeCompleted) {}
-
-  if (deviceType == DeviceType::Peripheral) {
-    Wire.onReceive(pullDataCallback);
-    Wire.onRequest(pushDataCallback);
-  } else {
+void NetworkManager::initNetworkTransmission() {
+  if (deviceType == DeviceType::Controller) {
     uint8_t currentRandomSeed = arduboy.generateRandomSeed();
     randomSeed(currentRandomSeed);
-
     Wire.beginTransmission(TARGET_ADDRESS);
     Wire.write((uint8_t)MessageType::setRandomSeed);
     Wire.write(currentRandomSeed);
     Wire.endTransmission();
-
     goToNextLevel();
   }
 #ifdef DEBUG_MODE
+  handshakeState = HandshakeState::Completed;
   Serial.println(F("Handshake Completed !"));
 #endif
-
-  return deviceType;
 }
 
 DeviceType NetworkManager::getDeviceType() const {
@@ -268,9 +265,12 @@ void NetworkManager::handshakeRequestCallback() {
 #ifdef DEBUG_MODE
   Serial.println(F("Validate Handshake"));
 #endif
-
+  // Let's setup the new callback right before we send the response to the
+  // Controller. So we make sure, we will receive all the request from him 
+  Wire.onReceive(pullDataCallback);
+  Wire.onRequest(pushDataCallback);
   Wire.write(true);
-  handshakeCompleted = true;
+  handshakeState = HandshakeState::Started;
 }
 
 void NetworkManager::pullDataCallback() {

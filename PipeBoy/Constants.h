@@ -6,7 +6,7 @@
 constexpr uint8_t FRAME_RATE = 40;
 
 // Map Constants
-constexpr int8_t startGridX = 10;
+constexpr int8_t startGridX = 15;
 constexpr int8_t startGridY = -4;
 constexpr uint8_t MAX_GRID_WIDTH = 12;
 constexpr uint8_t MAX_GRID_HEIGHT = 9;
@@ -48,6 +48,6 @@ extern Arduboy2 arduboy;
 extern BeepPin1 beep;
 extern SpritesB sprites;
 
-//#define DEBUG_MODE
+// #define DEBUG_MODE
 
 #endif

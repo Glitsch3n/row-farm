@@ -24,6 +24,12 @@ enum class DeviceType : uint8_t {
   Peripheral
 };
 
+enum class HandshakeState : uint8_t {
+  NotReady,
+  Started,
+  Completed
+};
+
 typedef union {
   uint16_t value;
   struct {
@@ -57,7 +63,9 @@ public:
   bool isAvailable();
   void update();
   DeviceType getDeviceType() const;
-  DeviceType handshake();
+  HandshakeState getHandshakeState() const;
+  DeviceType initHandshake();
+  void initNetworkTransmission();
   void pullData();
   void pushDataToController(int numBytes);
 

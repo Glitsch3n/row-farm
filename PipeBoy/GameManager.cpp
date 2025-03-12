@@ -120,8 +120,13 @@ void GameManager::setNextLevel() {
     tileMap->reset();
     initPipingNetwork(tileMap, currentLevel);
 
-    // Let's not make Password Reveal in case we are in 2 Player mode
-    if (!networkManager->isAvailable()) {
+    if (networkManager->isAvailable()) {
+      // The Peripheral should always start second
+      if (networkManager->getDeviceType() == DeviceType::Peripheral) {
+        getPlayer()->setIsPlayerTurn(false);
+      }
+    } else {
+      // Let's not make Password Reveal in case we are in 2 Player mode
       const char *pwd = getPasswordFromLevel(currentLevel);
       if (pwd) {
         setState(GameState::PasswordReveal);
@@ -338,33 +343,40 @@ void GameManager::renderGameOver() const {
   arduboy.print(F("Press A to continue"));
 }
 
-
 /*
 ** Update + Render Automatic Handshake
 */
 
 void GameManager::updateTwoPlayerWaitingScreen() {
 
-  if (networkManager->getDeviceType() == DeviceType::NotDefined) {
-#ifdef DEBUG_MODE
-    Serial.println(F("Device Type not defined... Let's try to handshake"));
-#endif
-    player->attachNetworkManager(networkManager);
+  if (arduboy.justPressed(B_BUTTON)) {
+    setMenu();
+    beepTone(MENU_SOUND_FREQ, MENU_SOUND_DUR);
+  } else {
 
+    if (networkManager->getDeviceType() == DeviceType::NotDefined) {
 #ifdef DEBUG_MODE
-    Serial.println(F("Starting Handshake..."));
+      Serial.println(F("Device Type not defined... Let's try to handshake"));
 #endif
-    const DeviceType dt = networkManager->handshake();
+      player->attachNetworkManager(networkManager);
+#ifdef DEBUG_MODE
+      Serial.println(F("Starting Handshake..."));
+#endif
+      networkManager->initHandshake();
+    }
 
-    if (dt == DeviceType::Controller) {
-      setState(GameState::Playing);
-      setNextLevel();
-      getPlayer()->setIsPlayerTurn(true);
-    } else {
-      //Serial.println(F("Hanshake finished, you are the Peripherical"));
-      // Peripheral device will later receive a message in order to
-      // - Get the randomSeed to create the new level
-      // - Go to the next level
+    if (networkManager->getHandshakeState() == HandshakeState::Started) {
+      networkManager->initNetworkTransmission();
+      if (networkManager->getDeviceType() == DeviceType::Controller) {
+        setState(GameState::Playing);
+        setNextLevel();
+        getPlayer()->setIsPlayerTurn(true);
+      } else {
+        //Serial.println(F("Hanshake finished, you are the Peripherical"));
+        // Peripheral device will later receive a message in order to
+        // - Get the randomSeed to create the new level
+        // - Go to the next level
+      }
     }
   }
 }
@@ -372,4 +384,6 @@ void GameManager::updateTwoPlayerWaitingScreen() {
 void GameManager::renderTwoPlayerWaitingScreen() const {
   arduboy.setCursor(15, 25);
   arduboy.print(F("Waiting Player..."));
+  arduboy.setCursor(5, 55);
+  arduboy.print(F("Press B to Quit"));
 }

@@ -178,7 +178,7 @@ void Player::render() const {
   // => All `NB_MAX_PIPE_DISPLAYED` are displayed on the screen
   // once the columnDisplayMove has ended (meaning is == false)
   for (uint8_t i = columnDisplayMove ? 1 : 0; i < NB_MAX_PIPE_DISPLAYED; i++) {
-    arduboy.drawBitmap(1, columnDisplayNextPipeY + 45 - (i * PIPE_UI_DISTANCE), getSpriteFromIndex(nextPipes[i], true), 8, 8);
-    arduboy.drawRoundRect(0, columnDisplayNextPipeY + 44 - (i * PIPE_UI_DISTANCE), 10, 10, 1);
+    arduboy.drawBitmap(6, columnDisplayNextPipeY + 45 - (i * PIPE_UI_DISTANCE), getSpriteFromIndex(nextPipes[i], true), 8, 8);
+    arduboy.drawRoundRect(5, columnDisplayNextPipeY + 44 - (i * PIPE_UI_DISTANCE), 10, 10, 1);
   }
 }

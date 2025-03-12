@@ -279,7 +279,7 @@ void TileMap::update(GameManager* gm) {
 void TileMap::render() const {
   // Render Score display
   arduboy.setCursorY(5);
-  arduboy.setCursorX(WIDTH - 23);
+  arduboy.setCursorX(WIDTH - 18);
   arduboy.print(String(pipesLeftToFill));
 
 
@@ -288,7 +288,7 @@ void TileMap::render() const {
     const uint8_t currentBarLevel = PIPE_LOADING_BAR_HEIGHT - ((levelTimer * PIPE_LOADING_BAR_HEIGHT) / NB_FRAMES_WAITING_TO_START);
 
     arduboy.fillRect(
-      110, startGridY + 20, 2, currentBarLevel);
+      115, startGridY + 20, 2, currentBarLevel);
   }
 
   for (uint8_t x = 0; x < MAX_GRID_WIDTH; x++) {
