@@ -78,7 +78,13 @@ void GameManager::setPlayerState(PlayerState newState) {
 
 void GameManager::beepTone(uint16_t count, uint8_t dur) {
   if (soundEnabled) {
-    beep.tone(beep.freq(count), dur);
+    sound.tone(count, dur);
+  }
+}
+
+void GameManager::beepTones(uint16_t *tones) {
+  if (soundEnabled) {
+    sound.tones(tones);
   }
 }
 
@@ -270,7 +276,7 @@ void GameManager::renderPaused() const {
   arduboy.print(currentScore);
 
   arduboy.setCursor(5, 45);
-  arduboy.print(F("Press A : Fast Flow"));
+  arduboy.print(F("Press A : End Level"));
   arduboy.setCursor(5, 55);
   arduboy.print(F("Press B : Resume"));
 }
@@ -367,7 +373,6 @@ void GameManager::updateTwoPlayerWaitingScreen() {
     }
   }
 }
-
 
 void GameManager::renderTwoPlayerWaitingScreen() const {
   arduboy.setCursor(15, 25);

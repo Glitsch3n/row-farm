@@ -16,6 +16,7 @@ GameManager gameManager = GameManager(
   &player, &tileMap, &menu, &pwdMenu, &sMenu);
 
 Arduboy2 arduboy;
+ArduboyTones sound(arduboy.audio.enabled);
 
 void setup() {
   arduboy.begin();
@@ -34,4 +35,3 @@ void loop() {
 
   beep.timer();
 }
-

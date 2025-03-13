@@ -41,6 +41,7 @@ private:
   bool findNextPipe(uint8_t& x, uint8_t& y, Direction& direction, bool& endPipeFound);
   bool updatePouringFlow();
   bool deleteNextMutablePipe();
+  inline bool isLevelSuccessfullyCompleted();
 
 public:
   TileMap();

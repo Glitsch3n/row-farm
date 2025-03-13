@@ -70,6 +70,7 @@ public:
   void loop();
   void setState(GameState newState);
   void beepTone(uint16_t count, uint8_t dur);
+  void beepTones(uint16_t *tones);
   void setPlayerState(PlayerState state);
   void setSoundEnabled(bool se);
   void increaseScore(uint16_t additionalScore);

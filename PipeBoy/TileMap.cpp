@@ -220,6 +220,11 @@ PipeState TileMap::getTileState(uint8_t x, uint8_t y) const {
   return tileMap[y][x].pipeState;
 }
 
+inline bool TileMap::isLevelSuccessfullyCompleted() {
+  return pipesLeftToFill == 0
+         && (requireEndingPipe ? haveCompleteEndingPipe : true);
+}
+
 void TileMap::update(GameManager* gm) {
   // Timer Update
   levelTimer++;
@@ -261,13 +266,16 @@ void TileMap::update(GameManager* gm) {
       if (!mutablePipeExists) {
         state = TileMapState::LevelEndWait;
         levelTimer = 0;
+        gm->beepTones(
+          isLevelSuccessfullyCompleted() ? gameVictorySoundSequence : gameEndSoundSequence);
+      } else {
+        gm->beepTones(explosionSoundSequence);
       }
       explosionTimer = 0;
     }
   } else if (state == TileMapState::LevelEndWait) {
     if (levelTimer / FRAME_RATE > 1) {
-      if (pipesLeftToFill == 0
-          && (requireEndingPipe ? haveCompleteEndingPipe : true)) {
+      if (isLevelSuccessfullyCompleted()) {
         gm->setNextLevel();
       } else {
         gm->setState(GameState::GameOver);

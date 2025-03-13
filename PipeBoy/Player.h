@@ -42,7 +42,7 @@ public:
   void render() const;
   void update(GameManager *gm);
   void reset();
-  void pushTile();
+  uint8_t pushTile();
   void setPosition(uint8_t x, uint8_t y);
   void setState(PlayerState state);
   void setIsPlayerTurn(bool isTurn);

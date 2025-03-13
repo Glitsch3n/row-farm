@@ -80,11 +80,18 @@ void Player::handleInput(GameManager *gm) {
   }
 
   if (arduboy.justPressed(A_BUTTON)) {
-    pushTile();
+    const uint8_t replacementType = pushTile();
     if (networkManager) {
       networkManager->setPipe();
     }
-    gm->beepTone(MENU_SOUND_FREQ, MENU_SOUND_DUR);
+
+    if (replacementType == 1) {
+      gm->beepTone(MENU_SOUND_FREQ, MENU_SOUND_DUR);
+    } else if (replacementType == 2) {
+      gm->beepTones(explosionSoundSequence);
+    } else {
+      gm->beepTones(fordbiddenActionSoundSequence);
+    }
   }
 }
 
@@ -105,21 +112,23 @@ bool Player::getIsPlayerTurn() const {
   return isPlayerTurn;
 }
 
-void Player::pushTile() {
+uint8_t Player::pushTile() {
   uint8_t tileType = tileMapRef->getTileType(xCursorPos, yCursorPos);
 
   if (tileType == 0) {
     tileMapRef->setTileType(xCursorPos, yCursorPos, nextPipes[0]);
     state = PlayerState::AddingPipe;
     columnDisplayMove = true;
-
+    return 1;
   } else if (tileMapRef->canTileBeErased(xCursorPos, yCursorPos)) {
     tileMapRef->setTileType(xCursorPos, yCursorPos, nextPipes[0]);
     tileMapRef->setTileState(xCursorPos, yCursorPos, PipeState::Exploding);
     tileMapRef->resetExplosionTimer();
     state = PlayerState::ReplacingPipe;
     columnDisplayMove = true;
+    return 2;
   }
+  return 0;
 }
 
 void Player::handleState() {
