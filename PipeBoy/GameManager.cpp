@@ -336,7 +336,7 @@ void GameManager::updateGameOver() {
 }
 
 void GameManager::renderGameOver() const {
-  arduboy.setCursor(35, 25);
+  arduboy.setCursor(38, 25);
   arduboy.print(F("Game Over"));
 }
 
